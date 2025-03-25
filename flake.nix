@@ -5,24 +5,45 @@
       url = "github:nix-community/naersk/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    utils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      utils,
+      flake-utils,
       naersk,
     }:
-    utils.lib.eachDefaultSystem (
+    {
+      overlays = {
+        mhvtl = final: prev: {
+          mhvtl = final.callPackage ./mhvtl.nix { };
+          linuxPackages = prev.linuxPackages.extend (_: _: { mhvtl = final.mhvtl.linuxPackage; });
+        };
+      };
+
+      nixosModules = {
+        mhvtl = import ./mhvtl-module.nix;
+      };
+    }
+    // flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ self.overlays.mhvtl ];
+        };
         naersk-lib = pkgs.callPackage naersk { };
       in
       {
-        defaultPackage = naersk-lib.buildPackage ./.;
+        packages = rec {
+          default = git-annex-remote-tape;
+          git-annex-remote-tape = naersk-lib.buildPackage ./.;
+
+          inherit (pkgs) mhvtl;
+        };
+
         devShell =
           with pkgs;
           mkShell {
@@ -36,6 +57,8 @@
 
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
           };
+
+        formatter = pkgs.nixfmt-rfc-style;
       }
     );
 }
