@@ -44,7 +44,9 @@
           inherit (pkgs) mhvtl;
         };
 
-        devShell =
+        checks.mhvtl = pkgs.callPackage ./mhvtl-test.nix { inherit self; };
+
+        devShells.default =
           with pkgs;
           mkShell {
             buildInputs = [

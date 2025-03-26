@@ -180,7 +180,7 @@ let
         homePath = lib.mkOption {
           description = "Specify a parent directory for the virtual media associated with this library";
           type = lib.types.path;
-          default = "${cfg.defaultHomePath}/${toString config.id}";
+          default = "${cfg.homePath}/${toString config.id}";
         };
 
         persist = lib.mkOption {
@@ -209,9 +209,7 @@ let
         maps = lib.mkOption {
           description = "A list of barcodes of media loaded to media access ports (MAPS). Use an empty string for empty MAPS.";
           type = lib.types.listOf lib.types.str;
-          default = [
-            ""
-          ];
+          default = [ "" ];
         };
 
         slots = lib.mkOption {
@@ -292,8 +290,8 @@ in
           {
             id = 1;
             vendor = "IBM";
-            product = "ULTRIUM-HH6";
-            revision = "E4J1";
+            product = "ULT3580-TD6";
+            revision = "2160";
             serial = "MYK0830KS2";
             naa = "10:22:33:44:ab:cd:ef:01";
             library = {
@@ -312,7 +310,7 @@ in
             id = 10;
             vendor = "SCALAR";
             product = "i40";
-            revision = "5500";
+            revision = "2160";
             serial = "D0H0029914";
             naa = "10:22:33:44:ab:cd:ef:00";
 
@@ -333,7 +331,7 @@ in
       verbose = lib.mkOption {
         type = lib.types.int;
         description = "Default verbosity";
-        default = 1;
+        default = 0;
       };
 
       debug = {
@@ -387,7 +385,7 @@ in
     systemd = {
       services = {
         "vtltape@" = {
-          description = "Tape Daemon for Virtual Tape & Robot Library";
+          description = "mhVTL - Tape Daemon";
           documentation = [
             "man:vtltape(1)"
             "man:vtlcmd(1)"
@@ -406,7 +404,7 @@ in
         };
 
         "vtllibrary@" = {
-          description = "Robot Library Daemon for Virtual Tape & Robot Library";
+          description = "mhVTL - Robot Library Daemon";
           documentation = [
             "man:vtllibrary(1)"
             "man:vtlcmd(1)"
@@ -428,7 +426,7 @@ in
 
       targets = {
         mhvtl = {
-          description = "mhvtl service allowing to start/stop all vtltape@.service and vtllibrary@.service instances at once";
+          description = "mhVTL - Linux Virtual Tape Library";
           documentation = [
             "man:man:vtltape(1)"
             "man:man:vtllibrary(1)"
