@@ -47,8 +47,6 @@ let
       "MHVTL_HOME_PATH=/var/lib/mhvtl"
     ];
 
-    separateDebugInfo = true;
-
     postPatch = ''
       substituteInPlace Makefile --replace "MAKE_VTL_MEDIA = usr/make_vtl_media" "MAKE_VTL_MEDIA = true"
     '';
@@ -74,10 +72,6 @@ let
       license = lib.licenses.gpl2;
       maintainers = [ lib.maintainers.stv0g ];
       platforms = lib.platforms.linux;
-      outputsToInstall = [
-        "out"
-        "debug"
-      ];
     };
   });
 in
