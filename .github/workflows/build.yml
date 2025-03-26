@@ -1,27 +1,32 @@
 name: "Build with Nix"
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-    build:
-        runs-on: ubuntu-24.04
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v2
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-            - name: Setup Nix
-              uses: cachix/install-nix-action@v31
-              with:
-                  github_access_token: ${{ secrets.GITHUB_TOKEN }}
-                  enable_kvm: true
-                  extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Setup Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          enable_kvm: true
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
 
-            # - name: Building package
-            #   run: nix build
+      - uses: cachix/cachix-action@v14
+        with:
+          name: stv0g
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-            - name: Run VM test
-              run: nix flake check
+      # - name: Building package
+      #   run: nix build
+
+      - name: Run VM test
+        run: nix flake check --print-build-logs
