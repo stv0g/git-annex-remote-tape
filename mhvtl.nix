@@ -6,6 +6,7 @@
   zlib,
   getopt,
   perl,
+  git,
 }:
 let
   name = "mhvtl";
@@ -34,7 +35,10 @@ let
       perl
     ];
 
-    nativeBuildInputs = [ getopt ];
+    nativeBuildInputs = [
+      getopt
+      git
+    ];
 
     makeFlags = [
       "PREFIX="
