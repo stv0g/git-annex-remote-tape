@@ -1,0 +1,20 @@
+name: Run NixOS VM tests
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    nixos:
+        strategy:
+            matrix:
+                check:
+                    - mhvtl
+                    - git-annex-remote-tape
+
+        uses: ./.github/workflows/nix-build.yml
+        with:
+            attribute: checks.x86_64-linux.${{ matrix.check }}
+        secrets: inherit

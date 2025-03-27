@@ -1,0 +1,20 @@
+name: Build packages
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    nixos:
+        strategy:
+            matrix:
+                package:
+                    - mhvtl
+                    - git-annex-remote-tape
+
+        uses: ./.github/workflows/nix-build.yml
+        with:
+            attribute: packages.x86_64-linux.${{ matrix.package }}
+        secrets: inherit

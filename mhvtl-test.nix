@@ -10,11 +10,14 @@ testers.runNixOSTest (
 
     extraPythonPackages = p: [ p.dotmap ];
     skipTypeCheck = true;
+    node.specialArgs = {
+      inherit self;
+    };
 
     nodes.machine =
       { pkgs, ... }:
       {
-        imports = [ self.nixosModules.mhvtl ];
+        imports = [ ./mhvtl-hardware.nix ];
 
         environment.systemPackages = with pkgs; [
           mtx
@@ -23,23 +26,6 @@ testers.runNixOSTest (
           mhvtl
           kmod
         ];
-
-        hardware.mhvtl = {
-          enable = true;
-
-          drives = map (i: {
-            id = i;
-            vendor = "IBM";
-            product = "ULT3580-TD6";
-            revision = "2160";
-            serial = "SN00000${toString i}";
-            naa = "10:22:33:44:ab:cd:ef:0${toString i}";
-            library = {
-              id = 10;
-              slot = i;
-            };
-          }) (lib.range 1 2);
-        };
       };
 
     testScript = ''

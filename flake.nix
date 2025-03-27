@@ -19,6 +19,8 @@
       overlays = {
         mhvtl = final: prev: {
           mhvtl = final.callPackage ./mhvtl.nix { };
+          git-annex-remote-tape = final.callPackage ./default.nix { inherit naersk; };
+
           linuxPackages = prev.linuxPackages.extend (_: _: { mhvtl = final.mhvtl.linuxPackage; });
         };
       };
@@ -34,17 +36,18 @@
           inherit system;
           overlays = [ self.overlays.mhvtl ];
         };
-        naersk-lib = pkgs.callPackage naersk { };
       in
       {
         packages = rec {
           default = git-annex-remote-tape;
-          git-annex-remote-tape = naersk-lib.buildPackage ./.;
 
-          inherit (pkgs) mhvtl;
+          inherit (pkgs) mhvtl git-annex-remote-tape;
         };
 
-        checks.mhvtl = pkgs.callPackage ./mhvtl-test.nix { inherit self; };
+        checks = {
+          default = pkgs.callPackage ./test.nix { inherit self; };
+          mhvtl = pkgs.callPackage ./mhvtl-test.nix { inherit self; };
+        };
 
         devShells.default =
           with pkgs;

@@ -5,7 +5,10 @@ use std::fmt;
 use clap::Parser;
 use std::io::{self};
 
-static STATE_DIR = "/Users/stv0g/.local/var/lib/git-annex/remotes/tape"
+
+
+// static STATE_DIR: &str = "/Users/stv0g/.local/var/lib/git-annex/remotes/tape";
+
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -16,7 +19,7 @@ struct Cli {
 }
 
 fn main() {
-    let cli = Cli::parse();
+    let _cli = Cli::parse();
 
     let mut remote = Remote::new();
 
@@ -44,10 +47,10 @@ impl From<io::Error> for Error {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Tape {
-    ID: String,
-    Generation: u32,
+    id: String,
+    generation: u32,
 }
 
 #[derive(Debug, Default)]
@@ -88,7 +91,7 @@ impl Remote {
     }
 
     fn prepare(&mut self) -> Result<(), Error> {
-        let drive = self.get_option("drive")?;
+        let drive = self.get_option("drive".to_string())?;
 
         self.opts.drive = Some(drive.clone());
 
@@ -100,13 +103,13 @@ impl Remote {
     }
 
     fn transfer_store(&mut self, key: &str, file: &str)-> Result<(), Error>  {
-        self.info(format!("store: {} {}", key, file).as_str())?;
+        self.info(format!("store: {} {}", key, file))?;
 
         Ok(())
     }
 
     fn transfer_retrieve(&mut self, key: &str, file: &str)-> Result<(), Error>  {
-        self.info(format!("retrieve: {} {}", key, file).as_str())?;
+        self.info(format!("retrieve: {} {}", key, file))?;
 
         let error = "Data not available yet";
 
@@ -124,8 +127,8 @@ impl Remote {
         };
 
         match direction {
-            "STORE" =>  self.transfer_store(key, file)
-            "RETRIEVE" =>  self.transfer_retrieve(key, file)
+            "STORE" =>  self.transfer_store(key, file),
+            "RETRIEVE" =>  self.transfer_retrieve(key, file),
             _ =>
                 Err(Error {
                     message: "Invalid direction".to_string(),
@@ -134,13 +137,15 @@ impl Remote {
     }
 
     fn check_present(&mut self, key: &str) -> Result<(), Error> {
-        self.info(format!("check present: {}", key).as_str())
+        self.info(format!("check present: {}", key))
     }
 
     fn remove(&mut self, key: &str) -> Result<(), Error> {
-        self.info(format!("remove: {}", key).as_str())?;
+        self.info(format!("remove: {}", key))?;
 
-        self.write_line(format!("REMOVE-FAILURE {} Droping keys from tapes is currently not supported", key))
+        self.write_line(format!("REMOVE-FAILURE {} Droping keys from tapes is currently not supported", key))?;
+
+        Ok(())
     }
 
     fn list_configs(&mut self) -> Result<(), Error>{
@@ -240,25 +245,25 @@ impl Remote {
         self.stdout.write(format!("{}\n", msg).as_bytes())
     }
 
-    fn process_line(&mut self, line: String) -> Result<(), Error> {        
-        let (cmd, args: Option<String>) = match line.split_once(" ") {
+    fn process_line(&mut self, line: String) -> Result<(), Error> {
+        let (cmd, args) = match line.split_once(" ") {
             Some((cmd, args)) => (cmd, Some(args)),
-            None => (line, None)
+            None => (line.as_str(), None)
         };
-    
+
         match cmd {
-            "INITREMOTE" =>  self.init_remote()
-            "EXTENSIONS" =>  self.extensions()
-            "PREPARE" =>  self.prepare()
-            "TRANSFER" =>  self.transfer(args)
-            "CHECKPRESENT" =>  self.check_present(args)
-            "REMOVE" =>  self.remove(args)
-            "LISTCONFIGS" =>  self.list_configs()
-            "GETCOST" =>  self.get_cost()
-            "GETORDERED" =>  self.get_ordered()
-            "GETAVAILABILITY" =>  self.get_availability()
-            "GETINFO" =>  self.get_info()
-            _ => 
+            "INITREMOTE" =>  self.init_remote(),
+            "EXTENSIONS" =>  self.extensions(),
+            "PREPARE" =>  self.prepare(),
+            "TRANSFER" =>  self.transfer(args.unwrap()),
+            "CHECKPRESENT" =>  self.check_present(args.unwrap()),
+            "REMOVE" =>  self.remove(args.unwrap()),
+            "LISTCONFIGS" =>  self.list_configs(),
+            "GETCOST" =>  self.get_cost(),
+            "GETORDERED" =>  self.get_ordered(),
+            "GETAVAILABILITY" =>  self.get_availability(),
+            "GETINFO" =>  self.get_info(),
+            _ =>
                 Err(Error {
                     message: "Invalid command".to_string(),
                 }),
@@ -266,7 +271,7 @@ impl Remote {
     }
 
     fn run(&mut self) {
-        self.write_line("VERSION 2").unwrap();
+        self.write_line("VERSION 2".to_string()).unwrap();
 
         loop {
             match self.read_line() {
@@ -274,17 +279,17 @@ impl Remote {
                     match self.process_line(line) {
                         Ok(_) => {}
                         Err(e) => {
-                            self.error(e.message.as_str()).unwrap();
+                            self.error(e.message).unwrap();
                         }
                     }
                 }
                 Err(e) => {
-                    self.error(e.to_string().as_str()).unwrap();
+                    self.error(e.to_string()).unwrap();
                 }
             }
         }
     }
-    
+
 }
 
 

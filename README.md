@@ -20,3 +20,39 @@ git-annex-remote-tape retrieve --tape --repo
     UUID/
         details.json
 ```
+
+
+## On-tape format
+
+```
++=====================+
+| Media Header        |
+| - Version           |
+| - Header Length     |
+| - Create Time       |
++=====================+
+|///// FILE MARK /////|
++=====================+
+| Archive Header 1    |
+| - Version           |
+| - Header Length     |
+| - Create Time       |
+| - Host              |
+|=====================|
+| Object Header 1     |
+| - Version           |
+| - Header Length     |
+| - Object Length     |
+| - Key               |
+|- - - - - - - - - - -|
+| Object Contents     |
+|---------------------|
+| Object Header 2     |
+  .....               |
++=====================+
+|///// FILE MARK /////|
++=====================+
+| Archive Header 2    |
+|  .....              |
++=====================+
+```
