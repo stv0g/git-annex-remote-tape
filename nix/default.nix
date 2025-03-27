@@ -4,5 +4,7 @@ let
 in
 naersk-lib.buildPackage {
   name = "git-annex-remote-tape";
-  src = ./.;
+  src = ../.;
+
+  doCheck = true;
 }

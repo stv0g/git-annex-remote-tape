@@ -17,7 +17,7 @@ testers.runNixOSTest (
     nodes.machine =
       { pkgs, ... }:
       {
-        imports = [ ./mhvtl-hardware.nix ];
+        imports = [ ../test/hardware.nix ];
 
         environment.systemPackages = with pkgs; [
           mtx

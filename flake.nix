@@ -18,15 +18,15 @@
     {
       overlays = {
         mhvtl = final: prev: {
-          mhvtl = final.callPackage ./mhvtl.nix { };
-          git-annex-remote-tape = final.callPackage ./default.nix { inherit naersk; };
+          mhvtl = final.callPackage ./nix/mhvtl { };
+          git-annex-remote-tape = final.callPackage ./nix { inherit naersk; };
 
           linuxPackages = prev.linuxPackages.extend (_: _: { mhvtl = final.mhvtl.linuxPackage; });
         };
       };
 
       nixosModules = {
-        mhvtl = import ./mhvtl-module.nix;
+        mhvtl = import ./nix/mhvtl/module.nix;
       };
     }
     // flake-utils.lib.eachDefaultSystem (
@@ -44,9 +44,11 @@
           inherit (pkgs) mhvtl git-annex-remote-tape;
         };
 
-        checks = {
-          default = pkgs.callPackage ./test.nix { inherit self; };
-          mhvtl = pkgs.callPackage ./mhvtl-test.nix { inherit self; };
+        checks = rec {
+          default = git-annex-remote-tape;
+
+          git-annex-remote-tape = pkgs.callPackage ./nix/test { inherit self; };
+          mhvtl = pkgs.callPackage ./nix/mhvtl/test.nix { inherit self; };
         };
 
         devShells.default =

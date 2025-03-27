@@ -1,6 +1,6 @@
 { self, testers }:
 testers.runNixOSTest (
-  { pkgs, lib, ... }:
+  { lib, ... }:
   {
     name = "git-annex-remote-tape";
 
@@ -11,7 +11,7 @@ testers.runNixOSTest (
     };
 
     nodes.machine = {
-      imports = [ ./mhvtl-hardware.nix ];
+      imports = [ ./hardware.nix ];
     };
 
     testScript =
@@ -23,7 +23,7 @@ testers.runNixOSTest (
         # Build test artifacts for execution in NixOS VM
         git-annex-remote-tape-test = naersk-lib.buildPackage {
           name = "git-annex-remote-tape";
-          src = ./.;
+          src = ../../.;
 
           cargoBuild =
             _: ''cargo $cargo_options test --no-run $cargo_build_options >> $cargo_build_output_json'';

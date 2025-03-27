@@ -20,7 +20,7 @@ let
     leaveDotGit = true;
   };
 
-  linuxPackage = callPackage ./mhvtl-kernel.nix { inherit version src; };
+  linuxPackage = callPackage ./kernel.nix { inherit version src; };
 
   package = stdenv.mkDerivation (finalAttrs: {
     pname = name;
