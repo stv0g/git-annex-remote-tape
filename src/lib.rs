@@ -1,8 +1,6 @@
-pub fn add(a: i32, b: i32) -> i32 {
-    a + b
-}
+#![allow(dead_code)]
 
-#[test]
-fn test_add() {
-    assert!(add(1, 2) == 3)
-}
+pub mod format;
+pub mod mt;
+pub mod mtio;
+pub mod tape;

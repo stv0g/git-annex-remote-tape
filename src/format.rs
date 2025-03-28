@@ -1,20 +1,29 @@
-struct MediaHeader {
+use serde::{Deserialize, Serialize};
+
+static MEDIA_HEADER_MAGIC: i64 = 0x4d45444941544844;
+
+static ARCHIVE_HEADER_VERSION: u8 = 1;
+static MEDIA_HEADER_VERSION: u8 = 1;
+static OBJECT_HEADER_VERSION: u8 = 1;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MediaHeader<'a> {
     version: u8,
-    _reserved: u8,
-    header_length: u16,
+    magic: i64,
     creation_time: u64,
+    host: &'a str,
 }
 
-struct ArchiveHeader {
-    version: u8,
-    _reserved: u8,
-    header_length: u16,
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ArchiveHeader<'a> {
+    version: i8,
+    creation_time: u64,
+    host: &'a str,
 }
 
-struct ObjectHeader {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ObjectHeader<'a> {
     version: u8,
-    _reserved: u8,
-    header_length: u16,
     object_length: u64,
-    key: str,
+    key: &'a str,
 }

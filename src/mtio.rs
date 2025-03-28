@@ -7,14 +7,14 @@
 use nix;
 
 #[repr(C)]
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct mtop {
     pub mt_op: MTCmd,          // Operations defined below.
     pub mt_count: libc::c_int, // How many of them.
 }
 
 #[repr(i16)]
-#[allow(dead_code)] // Do not warn about unused command
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum MTCmd {
     MTRESET = 0,         // Reset drive in case of problems.
@@ -57,7 +57,7 @@ nix::ioctl_write_ptr!(mtioctop, b'm', 1, mtop);
 
 // From: /usr/include/x86_64-linux-gnu/sys/mtio.h
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct mtget {
     pub mt_type: MTType,        // Type of magtape device.
     pub mt_resid: libc::c_long, // Residual count: (not sure)
@@ -122,7 +122,7 @@ pub enum MTType {
 // Generic Mag Tape (device independent) status macros for examining mt_gstat -- HP-UX compatible
 // from: /usr/include/x86_64-linux-gnu/sys/mtio.h
 bitflags::bitflags! {
-    #[derive(Debug)]
+    #[derive(Debug, Default)]
     pub struct GMTStatusFlags: libc::c_long {
         const EOF = 0x80000000;
         const BOT = 0x40000000;
@@ -142,6 +142,7 @@ bitflags::bitflags! {
 }
 
 bitflags::bitflags! {
+    #[derive(Debug)]
     pub struct SetDrvBufferOptions: i32 {
         const MT_ST_BUFFER_WRITES =     1 << 0;
         const MT_ST_ASYNC_WRITES =      1 << 1;
