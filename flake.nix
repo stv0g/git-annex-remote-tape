@@ -1,11 +1,16 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     naersk = {
       url = "github:nix-community/naersk/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
+    rustowl.url = "github:mrcjkb/rustowl-flake";
   };
 
   outputs =
@@ -13,7 +18,9 @@
       self,
       nixpkgs,
       flake-utils,
+      fenix,
       naersk,
+      rustowl,
     }:
     {
       overlays = {
@@ -34,7 +41,11 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ self.overlays.mhvtl ];
+          overlays = [
+            self.overlays.mhvtl
+            fenix.overlays.default
+            rustowl.overlays.default
+          ];
         };
       in
       {
@@ -52,17 +63,25 @@
         };
 
         devShells.default =
-          with pkgs;
-          mkShell {
+          let
+            rustToolchain =
+              with pkgs.fenix;
+              combine [
+                targets.x86_64-unknown-linux-gnu.stable.rust-std
+                stable.rust-src
+                stable.rustc
+                stable.cargo
+                stable.rustfmt
+              ];
+          in
+          pkgs.mkShell {
             buildInputs = [
-              cargo
-              rustc
-              rustfmt
-              pre-commit
-              rustPackages.clippy
+              rustToolchain
+              pkgs.rustowl
             ];
 
-            RUST_SRC_PATH = rustPlatform.rustLibSrc;
+            RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library/";
+            RUST_BACKTRACE = "1";
           };
 
         formatter = pkgs.nixfmt-rfc-style;
